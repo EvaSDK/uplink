@@ -6,6 +6,7 @@ handling classes.
 import collections
 import functools
 import inspect
+from abc import ABCMeta, abstractmethod, abstractproperty
 
 # Local imports
 from uplink import exceptions, hooks, interfaces, utils
@@ -160,6 +161,7 @@ class ArgumentAnnotationHandler(interfaces.AnnotationHandler):
 
 
 class ArgumentAnnotation(interfaces.Annotation):
+    __metaclass__ = ABCMeta
     _can_be_static = True
 
     def __call__(self, request_definition_builder):
@@ -173,9 +175,9 @@ class ArgumentAnnotation(interfaces.Annotation):
     def type(self):  # pragma: no cover
         return None
 
-    @property
+    @abstractproperty
     def converter_key(self):  # pragma: no cover
-        raise NotImplementedError
+        ...
 
     def modify_request(self, request_builder, value):
         argument_type, converter_key = self.type, self.converter_key
@@ -185,6 +187,8 @@ class ArgumentAnnotation(interfaces.Annotation):
 
 
 class TypedArgument(ArgumentAnnotation):
+    __metaclass__ = ABCMeta
+
     def __init__(self, type=None):
         self._type = type
 
@@ -199,12 +203,13 @@ class TypedArgument(ArgumentAnnotation):
         else:
             raise AttributeError("Type is already set.")
 
-    @property
+    @abstractproperty
     def converter_key(self):  # pragma: no cover
-        raise NotImplementedError
+        ...
 
 
 class NamedArgument(TypedArgument):
+    __metaclass__ = ABCMeta
     _can_be_static = True
 
     def __init__(self, name=None, type=None):
@@ -222,17 +227,19 @@ class NamedArgument(TypedArgument):
         else:
             raise AttributeError("Name is already set.")
 
-    @property
+    @abstractproperty
     def converter_key(self):  # pragma: no cover
-        raise NotImplementedError
+        ...
 
 
 class EncodeNoneMixin(object):
+    __metaclass__ = ABCMeta
     #: Identifies how a `None` value should be encoded in the request.
     _encode_none = None  # type: str
 
+    @abstractmethod
     def _modify_request(self, request_builder, value):  # pragma: no cover
-        raise NotImplementedError
+        ...
 
     def modify_request(self, request_builder, value):
         if value is None:

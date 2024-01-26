@@ -5,6 +5,7 @@ converter layer to identify the desired conversion type when querying a
 """
 # Standard library imports
 import functools
+from abc import ABCMeta, abstractmethod
 
 # Local imports
 
@@ -33,6 +34,7 @@ class CompositeKey(object):
     Arguments:
         converter_key: The enveloped converter key.
     """
+    __metaclass__ = ABCMeta
 
     def __init__(self, converter_key):
         self._converter_key = converter_key
@@ -42,8 +44,9 @@ class CompositeKey(object):
             return other._converter_key == self._converter_key
         return False
 
+    @abstractmethod
     def convert(self, converter, value):  # pragma: no cover
-        raise NotImplementedError
+        ...
 
     def __call__(self, converter_registry):
         factory = converter_registry[self._converter_key]

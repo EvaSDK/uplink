@@ -1,8 +1,13 @@
+# Standard library imports
+from abc import ABCMeta, abstractmethod
+
 # Local imports
 from uplink.clients.io import interfaces
 
 
 class _BaseState(interfaces.RequestState):
+    __metaclass__ = ABCMeta
+
     def __init__(self, request):
         self._request = request
 
@@ -23,8 +28,9 @@ class _BaseState(interfaces.RequestState):
     def sleep(self, duration):
         return Sleep(self._request, duration)
 
+    @abstractmethod
     def execute(self, execution):  # pragma: no cover
-        raise NotImplementedError
+        ...
 
     @property
     def request(self):
@@ -169,6 +175,8 @@ class AfterException(_BaseState):
 
 
 class TerminalState(interfaces.RequestState):
+    __metaclass__ = ABCMeta
+
     def __init__(self, request):
         self._request = request
 
@@ -176,8 +184,9 @@ class TerminalState(interfaces.RequestState):
     def request(self):
         return self._request
 
+    @abstractmethod
     def execute(self, execution):  # pragma: no cover
-        raise NotImplementedError
+        ...
 
 
 class Fail(TerminalState):

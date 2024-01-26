@@ -1,6 +1,13 @@
+# Standard library imports
+from abc import ABCMeta, abstractmethod
+
+
 class Converter(object):
+    __metaclass__ = ABCMeta
+
+    @abstractmethod
     def convert(self, value):
-        raise NotImplementedError
+        ...
 
     def __call__(self, *args, **kwargs):
         return self.convert(*args, **kwargs)

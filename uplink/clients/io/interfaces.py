@@ -1,3 +1,6 @@
+# Standard library imports
+from abc import ABCMeta, abstractmethod, abstractproperty
+
 # Local imports
 from uplink import compat
 
@@ -22,7 +25,9 @@ class InvokeCallback(object):
     Callbacks to continue the running request execution after invoking
     a function using the underlying I/O model.
     """
+    __metaclass__ = ABCMeta
 
+    @abstractmethod
     def on_success(self, result):
         """
         Handles a successful invocation.
@@ -30,8 +35,8 @@ class InvokeCallback(object):
         Args:
             result: The invocation's return value.
         """
-        raise NotImplementedError
 
+    @abstractmethod
     def on_failure(self, exc_type, exc_val, exc_tb):
         """
         Handles a failed invocation.
@@ -41,7 +46,6 @@ class InvokeCallback(object):
             exc_val: The exception object.
             exc_tb: The exception's stacktrace.
         """
-        raise NotImplementedError
 
 
 class SleepCallback(object):
@@ -49,11 +53,13 @@ class SleepCallback(object):
     Callbacks to continue the running request execution after an
     intended pause.
     """
+    __metaclass__ = ABCMeta
 
+    @abstractmethod
     def on_success(self):
         """Handles a successful pause."""
-        raise NotImplementedError
 
+    @abstractmethod
     def on_failure(self, exc_type, exc_val, exc_tb):
         """
         Handles a failed pause.
@@ -63,30 +69,31 @@ class SleepCallback(object):
             exc_val: The exception object.
             exc_tb: The exception's stacktrace.
         """
-        raise NotImplementedError
 
 
 class Executable(compat.abc.Iterator):
     """An abstraction for iterating over the execution of a request."""
+    __metaclass__ = ABCMeta
 
     def __next__(self):
         return self.execute()
 
     next = __next__
 
+    @abstractmethod
     def execute(self):
         """Continues the request's execution."""
-        raise NotImplementedError
 
 
 class RequestExecution(Executable):
     """A state machine representing the execution lifecycle of a request."""
+    __metaclass__ = ABCMeta
 
-    @property
+    @abstractproperty
     def state(self):
         """The current state of the request."""
-        raise NotImplementedError
 
+    @abstractmethod
     def send(self, request, callback):
         """
         Sends the given request.
@@ -96,8 +103,8 @@ class RequestExecution(Executable):
             callback (InvokeCallback): A callback that resumes execution
                 after the request is sent.
         """
-        raise NotImplementedError
 
+    @abstractmethod
     def sleep(self, duration, callback):
         """
         Pauses the execution for the allotted duration.
@@ -107,8 +114,8 @@ class RequestExecution(Executable):
             callback (:obj:`SleepCallback`): A callback that resumes
                 execution after the delay.
         """
-        raise NotImplementedError
 
+    @abstractmethod
     def finish(self, response):
         """
         Completes the execution.
@@ -116,8 +123,8 @@ class RequestExecution(Executable):
         Args:
             response: The object to return to the execution's invoker.
         """
-        raise NotImplementedError
 
+    @abstractmethod
     def fail(self, exc_type, exc_val, exc_tb):
         """
         Fails the execution with a specific error.
@@ -127,33 +134,34 @@ class RequestExecution(Executable):
             exc_val: The exception object.
             exc_tb: The exception's stacktrace.
         """
-        raise NotImplementedError
 
+    @abstractmethod
     def execute(self):
         """Performs the next sequence of steps in the execution."""
-        raise NotImplementedError
 
+    @abstractmethod
     def before_request(self, request):
         """Handles transitioning the execution before the request is sent."""
-        raise NotImplementedError
 
+    @abstractmethod
     def after_response(self, request, response):
         """Handles transitioning the execution after a successful request."""
-        raise NotImplementedError
 
+    @abstractmethod
     def after_exception(self, request, exc_type, exc_val, exc_tb):
         """Handles transitioning the execution after a failed request."""
-        raise NotImplementedError
 
+    @abstractmethod
     def start(self, request):
         """Starts the request's execution."""
-        raise NotImplementedError
 
 
 class RequestState(object):
-    @property
+    __metaclass__ = ABCMeta
+
+    @abstractproperty
     def request(self):
-        raise NotImplementedError
+        ...
 
     def send(self, request):
         raise IllegalRequestStateTransition(self, "send")
@@ -170,8 +178,9 @@ class RequestState(object):
     def fail(self, exc_type, exc_val, exc_tb):
         raise IllegalRequestStateTransition(self, "fail")
 
+    @abstractmethod
     def execute(self, execution):
-        raise NotImplementedError
+        ...
 
 
 class RequestTemplate(object):
@@ -231,7 +240,9 @@ class RequestTemplate(object):
 
 class Client(object):
     """An HTTP Client implementation."""
+    __metaclass__ = ABCMeta
 
+    @abstractmethod
     def send(self, request):
         """
         Sends the given request.
@@ -239,8 +250,8 @@ class Client(object):
         Args:
             request: The intended request data to be sent.
         """
-        raise NotImplementedError
 
+    @abstractmethod
     def apply_callback(self, callback, response):
         """
         Invokes callback on the response.
@@ -249,12 +260,13 @@ class Client(object):
             callback (callable): a function that handles the response.
             response: data returned from a server after request.
         """
-        raise NotImplementedError
 
 
 class IOStrategy(object):
     """An adapter for a specific I/O model."""
+    __metaclass__ = ABCMeta
 
+    @abstractmethod
     def invoke(self, func, args, kwargs, callback):
         """
         Invokes the given function using the underlying I/O model.
@@ -266,8 +278,8 @@ class IOStrategy(object):
             callback (:obj:`InvokeCallback`): A callback that resumes
                 execution after the invocation completes.
         """
-        raise NotImplementedError
 
+    @abstractmethod
     def sleep(self, duration, callback):
         """
         Pauses the execution for the allotted duration.
@@ -277,8 +289,8 @@ class IOStrategy(object):
             callback (:obj:`SleepCallback`): A callback that resumes
                 execution after the delay.
         """
-        raise NotImplementedError
 
+    @abstractmethod
     def finish(self, response):
         """
         Completes the execution.
@@ -286,7 +298,6 @@ class IOStrategy(object):
         Args:
             response: The object to return to the execution's invoker.
         """
-        raise NotImplementedError
 
     def fail(self, exc_type, exc_val, exc_tb):
         """
@@ -299,9 +310,9 @@ class IOStrategy(object):
         """
         compat.reraise(exc_type, exc_val, exc_tb)
 
+    @abstractmethod
     def execute(self, executable):
         """
         Runs a request's execution to completion using the I/O framework
         of this strategy.
         """
-        raise NotImplementedError

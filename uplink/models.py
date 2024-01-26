@@ -1,5 +1,6 @@
 # Standard library imports
 import functools
+from abc import ABCMeta, abstractmethod
 
 # Local imports
 from uplink import converters, decorators, install as _install, returns, utils
@@ -55,6 +56,8 @@ class _Wrapper(converters.Factory):
 
 
 class _ModelConverterBuilder(object):
+    __metaclass__ = ABCMeta
+
     def __init__(self, base_class, annotations=()):
         """
         Args:
@@ -68,8 +71,9 @@ class _ModelConverterBuilder(object):
         delegate = _Delegate(self._model_class, self._annotations, func)
         return self._wrap_delegate(delegate)
 
+    @abstractmethod
     def _wrap_delegate(self, delegate):  # pragma: no cover
-        raise NotImplementedError
+        ...
 
     def __call__(self, func):
         converter = _Wrapper(self.using(func), func)

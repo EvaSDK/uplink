@@ -1,3 +1,7 @@
+# Standard library imports
+from abc import ABCMeta, abstractmethod, abstractproperty
+
+
 class AnnotationMeta(type):
     def __call__(cls, *args, **kwargs):
         if cls._can_be_static and cls._is_static_call(*args, **kwargs):
@@ -29,6 +33,7 @@ Annotation = AnnotationMeta("Annotation", (_Annotation,), {})
 
 class AnnotationHandlerBuilder(object):
     __listener = None
+    __metaclass__ = ABCMeta
 
     @property
     def listener(self):
@@ -45,109 +50,135 @@ class AnnotationHandlerBuilder(object):
     def is_done(self):
         return True
 
+    @abstractmethod
     def build(self):
-        raise NotImplementedError
+        ...
 
 
 class AnnotationHandler(object):
-    @property
+    __metaclass__ = ABCMeta
+
+    @abstractproperty
     def annotations(self):
-        raise NotImplementedError
+        ...
 
 
 class UriDefinitionBuilder(object):
-    @property
+    __metaclass__ = ABCMeta
+
+    @abstractproperty
     def is_static(self):
-        raise NotImplementedError
+        ...
 
-    @property
+    @abstractproperty
     def is_dynamic(self):
-        raise NotImplementedError
+        ...
 
+    @abstractmethod
     @is_dynamic.setter
     def is_dynamic(self, is_dynamic):
-        raise NotImplementedError
+        ...
 
+    @abstractmethod
     def add_variable(self, name):
-        raise NotImplementedError
+        ...
 
-    @property
+    @abstractproperty
     def remaining_variables(self):
-        raise NotImplementedError
+        ...
 
+    @abstractproperty
     def build(self):
-        raise NotImplementedError
+        ...
 
 
 class RequestDefinitionBuilder(object):
-    @property
+    __metaclass__ = ABCMeta
+
+    @abstractproperty
     def method(self):
-        raise NotImplementedError
+        ...
 
-    @property
+    @abstractproperty
     def uri(self):
-        raise NotImplementedError
+        ...
 
-    @property
+    @abstractproperty
     def argument_handler_builder(self):
-        raise NotImplementedError
+        ...
 
-    @property
+    @abstractproperty
     def method_handler_builder(self):
-        raise NotImplementedError
+        ...
 
+    @abstractmethod
     def update_wrapper(self, wrapper):
-        raise NotImplementedError
+        ...
 
+    @abstractmethod
     def build(self):
-        raise NotImplementedError
+        ...
 
+    @abstractmethod
     def copy(self):
-        raise NotImplementedError
+        ...
 
 
 class RequestDefinition(object):
-    def make_converter_registry(self, converters):
-        raise NotImplementedError
+    __metaclass__ = ABCMeta
 
+    @abstractmethod
+    def make_converter_registry(self, converters):
+        ...
+
+    @abstractmethod
     def define_request(self, request_builder, func_args, func_kwargs):
-        raise NotImplementedError
+        ...
 
 
 class CallBuilder(object):
-    @property
+    __metaclass__ = ABCMeta
+
+    @abstractproperty
     def client(self):
-        raise NotImplementedError
+        ...
 
-    @property
+    @abstractproperty
     def base_url(self):
-        raise NotImplementedError
+        ...
 
-    @property
+    @abstractproperty
     def converters(self):
-        raise NotImplementedError
+        ...
 
-    @property
+    @abstractproperty
     def hooks(self):
-        raise NotImplementedError
+        ...
 
+    @abstractmethod
     def add_hook(self, hook, *more_hooks):
-        raise NotImplementedError
+        ...
 
-    @property
+    @abstractproperty
     def auth(self):
-        raise NotImplementedError
+        ...
 
+    @abstractmethod
     def build(self, definition):
-        raise NotImplementedError
+        ...
 
 
 class Auth(object):
+    __metaclass__ = ABCMeta
+
+    @abstractmethod
     def __call__(self, request_builder):
-        raise NotImplementedError
+        ...
 
 
 class Consumer(object):
-    @property
+    __metaclass__ = ABCMeta
+
+    @abstractproperty
     def session(self):
-        raise NotImplementedError
+        ...

@@ -1,6 +1,10 @@
 # Standard imports
 import random
 import sys
+from abc import ABCMeta, abstractmethod
+
+# Local imports
+from uplink import compat
 
 # Constants
 MAX_VALUE = sys.maxsize / 2
@@ -47,29 +51,29 @@ class RetryBackoff(object):
     both instances return ``None``, the resulting strategy will also
     return ``None``.
     """
+    __metaclass__ = ABCMeta
 
+    @abstractmethod
     def get_timeout_after_response(self, request, response):
         """
         Returns the number of seconds to wait before retrying the
         request, or ``None`` to indicate that the given response should
         be returned.
         """
-        raise NotImplementedError  # pragma: no cover
 
+    @abstractmethod
     def get_timeout_after_exception(self, request, exc_type, exc_val, exc_tb):
         """
         Returns the number of seconds to wait before retrying the
         request, or ``None`` to indicate that the given exception
         should be raised.
         """
-        raise NotImplementedError  # pragma: no cover
 
     def handle_after_final_retry(self):
         """
         Handles any clean-up necessary following the final retry
         attempt.
         """
-        pass  # pragma: no cover
 
     def __or__(self, other):
         """Composes the current strategy with another."""
@@ -105,11 +109,8 @@ class _Or(RetryBackoff):
         self._right.handle_after_final_retry()
 
 
-class _IterableBackoff(RetryBackoff):
+class _IterableBackoff(RetryBackoff, compat.abc.Iterable):
     __iterator = None
-
-    def __iter__(self):
-        raise NotImplementedError  # pragma: no cover
 
     def __call__(self):
         return iter(self)

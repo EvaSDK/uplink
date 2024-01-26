@@ -1,3 +1,6 @@
+# Standard library imports
+from abc import ABCMeta, abstractmethod
+
 # Local imports
 from uplink.clients import exceptions, io
 
@@ -5,11 +8,12 @@ from uplink.clients import exceptions, io
 class HttpClientAdapter(io.Client):
     """An adapter of an HTTP client library."""
 
+    __metaclass__ = ABCMeta
     __exceptions = exceptions.Exceptions()
 
+    @abstractmethod
     def io(self):
         """Returns the execution strategy for this client."""
-        raise NotImplementedError
 
     @property
     def exceptions(self):
@@ -20,8 +24,10 @@ class HttpClientAdapter(io.Client):
         """
         return self.__exceptions
 
+    @abstractmethod
     def send(self, request):
-        raise NotImplementedError
+        ...
 
+    @abstractmethod
     def apply_callback(self, callback, response):
-        raise NotImplementedError
+        ...

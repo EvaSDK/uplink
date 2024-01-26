@@ -1,8 +1,10 @@
+# Local imports
+from uplink import compat
 
 __all__ = ["after_attempt", "after_delay"]
 
 
-class RetryBreaker(object):
+class RetryBreaker(compat.abc.Callable):
     def __or__(self, other):
         if other is not None:
             assert isinstance(
@@ -10,9 +12,6 @@ class RetryBreaker(object):
             ), "Both objects should be retry breakers."
             return _Or(self, other)
         return self
-
-    def __call__(self):  # pragma: no cover
-        raise NotImplementedError
 
 
 class _Or(RetryBreaker):

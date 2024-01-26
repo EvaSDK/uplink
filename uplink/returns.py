@@ -1,6 +1,7 @@
 # Standard library imports
 import sys
 import warnings
+from abc import ABCMeta, abstractmethod, abstractproperty
 
 # Local imports
 from uplink import decorators
@@ -40,9 +41,11 @@ class CallableReturnType(ReturnType):
 
 
 class _ReturnsBase(decorators.MethodAnnotation):
-    @property
+    __metaclass__ = ABCMeta
+
+    @abstractproperty
     def return_type(self):  # pragma: no cover
-        raise NotImplementedError
+        ...
 
     def _make_strategy(self, converter):  # pragma: no cover
         pass
